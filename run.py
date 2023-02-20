@@ -6,11 +6,13 @@ import requests
 from bs4 import BeautifulSoup
 
 today = str(date.today())
-filename = "C:\\Users\\oawawdi\\Documents\\python coding\\Redis\\Redis\\jobs.json"
+#yaml_path= ABSOLUTE_PATH / "jobs.json"
+filename = "C:\\Users\\oawawdi\\Documents\\python_coding\\job_finder\\find_jobs\\jobs.json"
 listObj = []
 jobs=[]
 latest_jobs=[]
 elements = []
+
 
 
 def find_delta_jobs(listObj):
@@ -37,30 +39,31 @@ def is_file_empty():
     # Check if file exist and it is empty
     return os.path.exists(filename) and os.stat(filename).st_size == 0
 
-url = 'https://www.careerarc.com/job-search?campaign_id=69733'
-response = requests.get(url)
-soup = BeautifulSoup(response.text,'html.parser')
-elements = soup.find_all('div', class_='job-posting-item')
-if elements:
-    print(f"{len(elements)} jobs were found:")
-    for element in elements:
-        if element.find('h2').a.text:
-            job = element.find('h2').a.text
-            jobs.append(job)
-            print(job)
-else:
-    print(f"no jobs were found for today {today}.")
+def search_by_company_id(self,company_id:str=69733):
+    url = f'https://www.careerarc.com/job-search?campaign_id={company_id}'
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text,'html.parser')
+    elements = soup.find_all('div', class_='job-posting-item')
+    if elements:
+        print(f"{len(elements)} jobs were found:")
+        for element in elements:
+            if element.find('h2').a.text:
+                job = element.find('h2').a.text
+                jobs.append(job)
+                print(job)
+    else:
+        print(f"no jobs were found for today {today}.")
 
-# Read JSON file
-try:
-    with open(filename,'w+') as fp:
-        if not is_file_empty():
-            listObj = json.load(fp)
-            find_delta_jobs(listObj)
-        new_listObj = write_new_jobs()
-        json.dump(new_listObj, fp, 
-                        indent=4,  
-                        separators=(',',': '))
+    # Read JSON file
+    try:
+        with open(filename,'w+') as fp:
+            if not is_file_empty():
+                listObj = json.load(fp)
+                find_delta_jobs(listObj)
+            new_listObj = write_new_jobs()
+            json.dump(new_listObj, fp, 
+                            indent=4,  
+                            separators=(',',': '))
 
-except ValueError:
-    print('Loading JSON has failed')
+    except ValueError:
+        print('Loading JSON has failed')
